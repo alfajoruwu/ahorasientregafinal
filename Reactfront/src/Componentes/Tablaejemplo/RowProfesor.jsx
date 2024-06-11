@@ -16,7 +16,8 @@ export default function Row ({ modulo }) {
       nota_mini: 5,
       tareas: '',
       otros: '',
-      id: null
+      id: null,
+      isLoading: false
     }))
   )
 
@@ -26,11 +27,14 @@ export default function Row ({ modulo }) {
   }
 
   const mandarAlBack = (oferta) => {
+    if (oferta.isLoading) {
+      return
+    }
     if (oferta.id === null) {
       if (oferta.horas_ayudantia === null || oferta.disponibilidad === '' || oferta.nota_mini === null || oferta.tareas === '') {
         return
       }
-      oferta.id = undefined
+      oferta.isLoading = true
       axiosInstance.post('Ofertas/', {
         modulo: modulo.id,
         horas_ayudantia: oferta.horas_ayudantia,
@@ -40,6 +44,10 @@ export default function Row ({ modulo }) {
         otros: oferta.otros
       }).then(response => {
         oferta.id = response.data.id
+        oferta.isLoading = false
+      }).catch(error => {
+        console.log(error)
+        oferta.isLoading = false
       })
     } else {
       axiosInstance.put('Ofertas/' + oferta.id + '/', {
